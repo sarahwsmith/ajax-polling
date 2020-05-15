@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ajax polling example</title>
+    <script type = "text/javascript" 
+	    src  = "http://code.jquery.com/jquery-latest.min.js">
+    </script>
+    <script type = "text/javascript">
+      var url = 'http://localhost:8080/places3/resourcesC/json';
+
+      function displayPlacs(placs) {
+         $('#container').empty(); // clear the old list, if any
+         $.each(placs, function(ind, val) { 
+              $('#container').append('<li>' + placs[ind].where + ': ' + 
+                                        placs[ind].poiOne + '</li>' + 
+                                        placs[ind].poiTwo  ); } );
+      }
+
+      function fetch() {
+          $.ajax({
+                   url:         url,
+                   method:      'GET',
+                   dataType:    'json',
+                   contentType: "application/json; charset=utf-8",
+                   cache:       false,
+                   success:     function(res) { displayPlacs(res.places); },
+                   error:       function(res) { console.log(res); },
+                   complete:    function () {
+                                   setTimeout(function() { fetch() }, 5000)}});
+      }
+
+      $(document).ready(fetch); // invoked after DOM is built and loaded
+    </script>
+
+    <form id="postForm" action="http://localhost:8080/ajaxa" method="POST">
+        <div>
+            <label class="title">Place:</label>
+            <input type="text" id="place" name="place" >
+        </div>
+        <div>
+            <label class="title">First point of interest:</label>
+            <input type="text" id="poiOne" name="poiOne" >
+        </div>
+        <div>
+            <label class="title">Second point of interest:</label>
+            <input type="text" id="poiTwo" name="poiTwo" >
+        </div>
+        <div>
+            <input type="submit" id="submitButton"  name="submitButton" value="Submit">
+        </div>
+ </form>
+ 
+ <div id="result"></div>
+
+ <script type = "text/javascript">
+// Attach a submit handler to the form
+$( "#postForm" ).submit(function( event ) {
+ 
+ // Stop form from submitting normally
+ event.preventDefault();
+
+ // Get some values from elements on the page:
+ var $form = $( this ),
+   place = $form.find( "input[name='place']" ).val(),
+   thisPoiOne = $form.find( "input[name='poiOne']" ).val(),
+   thisPoiTwo = $form.find( "input[name='poiTwo']" ).val(),
+   url = 'http://localhost:8080/places3/resourcesC/create';
+
+ // Send the data using post
+ var posting = $.post( url, {  where: place, poiOne: thisPoiOne, poiTwo: thisPoiTwo  } );
+});
+</script>
+
+  </head>
+  <body>
+    <ul id = 'container'></ul>
+  </body>
+</html>
+
